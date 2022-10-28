@@ -38,15 +38,13 @@
 {% endblock content %}
 
 {% block script %}
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-        const formTag = document.querySelectorAll('.like-form')
-const csrftoken = document
-    .querySelector('[name=csrfmiddlewaretoken]')
-    .value;
-// console.log(formTag)
-formTag.forEach((form) => {
-    form.addEventListener('submit', function (event) {
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    const formTag = document.querySelector('.like-form')
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    // console.log(formTag)
+    // formTag.forEach((form) => {
+    formTag.addEventListener('submit', function (event) {
         event.preventDefault()
         const articleId = event.target.dataset.articleId
 
@@ -72,6 +70,7 @@ formTag.forEach((form) => {
                 console.log(error)
             })
         })
-}) < /script>
+// }) 
+</script>
 
 {% endblock script %}
