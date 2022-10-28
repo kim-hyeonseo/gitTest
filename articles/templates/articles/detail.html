@@ -44,14 +44,9 @@
                         {% csrf_token %}
                         <input type="submit" value="DELETE">
                     </form>
-                    <form id = "updateForm"
-                        data-article-id="{{ article.pk }}"
-                        data-comment-id="{{ comment.pk }}"
-                        action="{% url 'articles:comments_update' article.pk comment.pk %}"
-                        method="POST">
-                        {% csrf_token %}
-                        <input type="submit" value="update">
-                    </form>
+
+                    <button id="comment-update">수정</button>
+
                 {% endif %}
             </li>
             {% empty %}
@@ -81,15 +76,17 @@
         const csrftoken = document
             .querySelector('[name=csrfmiddlewaretoken]')
             .value;
+        const updateBtn = document.querySelectorAll('#comment-update')
+
         const input = document.querySelector('[name=content]')
-        console.log(input)
-        console.log(form)
+        console.log(3)
+
         form.addEventListener('submit', function (event) {
             event.preventDefault()
             const articleId = event.target.dataset.articleId
-            const newForm = new FormData()
-
-            newForm.append('content', input.value)
+            let data = new FormData()
+            console.log(4)
+            data.append('content', input.value)
             // newForm.append('user', form.)
 
             axios({
@@ -98,65 +95,77 @@
                     'X-CSRFToken': csrftoken
                 },
                 url: `/articles/${articleId}/comments/`,
-                data: newForm
+                data,
 
             })
                 .then(function (response) {
                     console.log(response.data.comment_content)
                     const ulTag = document.querySelector('#replyUl')
                     const liTag = document.createElement('li')
-                    const updateBtn = document.createElement('button')
 
+                    console.log(5)
                     ulTag.appendChild(liTag)
-                    liTag.innerHTML = `{{ request.user.username }} - ${response.data.comment_content}
+                    liTag.innerHTML = `
+                    {{ request.user.username }} - ${response.data.comment_content}
                   <form action="comments/${response.data.comment_pk}/delete/" method="POST">
                     {% csrf_token %}
                     <input type="submit" value="DELETE">
                   </form>`
 
-                  updateBtn.innerHTML = `{{ request.user.username }} - ${response.data.comment_content}
-                  <form action="comments/${response.data.comment_pk}/update/" method="POST">
-                    {% csrf_token %}
-                    <input type="submit" value="UPDATE">
-                  </form>`
-                    liTag.appendChild(updateBtn)
                 })
+                
+                  //console
+
+
                 .catch(function (error) {
                     console.log(error)
                 })
             })
 
-   /*     const newBtn = document.createElement('button')
-        const ulTag = document.querySelector('#replyUl')
-        const liTag = document.createElement('li')
-        ulTag.append(li)
+                console.log(1)
 
-        const updateForm = document.querySelector('#updateForm')
-        //const csrftoken = document
-          //  .querySelector('[name=csrfmiddlewaretoken]')
-            //.value;
-        //const input = document.querySelector('[name=content]')
-        updateForm.addEventListener('click', function (event) {
-            event.preventDefault()
-            const articleId = event.target.dataset.articleId
-            const commentId = event.target.dataset.commentId
-            const newForm = new FormData()
-            newForm.append('content', input.value)
-
-            axios({
-                method: 'post',
-                headers: {
-                    'X-CSRFToken': csrftoken
-                },
-                url: `/articles/${articleId}/comments/`,
-                data: newForm
-*/
-
-
-            })
-
-        })
-
+                updateBtn.forEach(btn => {
+                    btn.addEventListener('click', event => {
+                      event.preventDefault()
+                      const commentLi = btn.parentNode
+                      const { commentPk } = commentLi.dataset
+                      const input = document.createElement('input')
+              
+                      input.value = commentLi.childNodes[1].innerText
+              
+                      input.name = 'content'
+                      
+                      const updateBtn = document.createElement('button')
+                      updateBtn.innerText = 'update'
+                      
+                      updateBtn.addEventListener('click', event => {
+                        let data = new FormData()
+                        data.append('content', input.value)
+                        axios({
+                          method: 'post',
+                          url: `http://127.0.0.1:8000/articles/{{article.pk}}/comments/${commentPk}/update/`,
+                          data,
+                          headers: {
+                            'X-CSRFToken': csrftoken}
+                        })
+                        .then(response => {
+                          const { commentPk, articlePk } = response.data
+                          commentLi.innerHTML = `
+                            {{ request.user.username }} - <span>${input.value}</span>
+                            <form action="/articles/${articlePk}/comments/${commentPk}/delete/" method="POST" class="d-inline">
+                              {% csrf_token %}
+                              <input type="submit" value="DELETE">
+                            </form>
+                          `
+                          commentLi.append(btn)
+                        })
+                      })
+              
+                      commentLi.innerText = ''
+                      commentLi.append(input, updateBtn)
+              
+                    })
+                  })
     </script>
 
 {% endblock script %}

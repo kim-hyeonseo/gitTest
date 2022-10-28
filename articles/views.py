@@ -99,16 +99,12 @@ def comments_create(request, pk):
             comment.article = article
             comment.user = request.user
             comment.save()
-            context = {
+        context = {
+            'comment_content' : comment.content,
+            'comment_pk' : comment.pk,
+        }
+        return JsonResponse(context)
 
-                'comment_content' : comment.content,
-                'comment_pk' : comment.pk,
-
-
-            }
-            return JsonResponse(context)
-        print(comment_form)
-        return redirect('articles:detail', article.pk)
     return redirect('accounts:login')
 
 
@@ -138,6 +134,7 @@ def likes(request, article_pk):
         return JsonResponse(context)
     return redirect('accounts:login')
 
+@require_POST
 def comments_update(request, article_pk, comment_pk) :
     article = Article.objects.get(pk=article_pk)
     comment = Comment.objects.get(pk=comment_pk)
@@ -146,14 +143,11 @@ def comments_update(request, article_pk, comment_pk) :
             form = CommentForm(request.POST, instance=comment)
             if form.is_valid() :
                 form.save()
-                return redirect('articles:detail', article.pk)
-        else :
-            form = CommentForm(instance=comment)
-    else:
-        return redirect('articles:index')
-    context = {
-        'form' : form,
+            context = {
+                'articlePk': article_pk,
+                'commentPk': comment_pk
+            }
+            return JsonResponse(context, status=200)
+    return redirect('articles:login')
 
-    }
-    return render(request, 'articles/detail.html', context)
     
