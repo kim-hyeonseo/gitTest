@@ -44,6 +44,14 @@
                         {% csrf_token %}
                         <input type="submit" value="DELETE">
                     </form>
+                    <form id = "updateForm"
+                        data-article-id="{{ article.pk }}"
+                        data-comment-id="{{ comment.pk }}"
+                        action="{% url 'articles:comments_update' article.pk comment.pk %}"
+                        method="POST">
+                        {% csrf_token %}
+                        <input type="submit" value="update">
+                    </form>
                 {% endif %}
             </li>
             {% empty %}
@@ -97,18 +105,58 @@
                     console.log(response.data.comment_content)
                     const ulTag = document.querySelector('#replyUl')
                     const liTag = document.createElement('li')
+                    const updateBtn = document.createElement('button')
+
                     ulTag.appendChild(liTag)
                     liTag.innerHTML = `{{ request.user.username }} - ${response.data.comment_content}
                   <form action="comments/${response.data.comment_pk}/delete/" method="POST">
-            {% csrf_token %}
-            <input type="submit" value="DELETE">
-          </form>`
+                    {% csrf_token %}
+                    <input type="submit" value="DELETE">
+                  </form>`
 
+                  updateBtn.innerHTML = `{{ request.user.username }} - ${response.data.comment_content}
+                  <form action="comments/${response.data.comment_pk}/update/" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" value="UPDATE">
+                  </form>`
+                    liTag.appendChild(updateBtn)
                 })
                 .catch(function (error) {
                     console.log(error)
                 })
             })
+
+   /*     const newBtn = document.createElement('button')
+        const ulTag = document.querySelector('#replyUl')
+        const liTag = document.createElement('li')
+        ulTag.append(li)
+
+        const updateForm = document.querySelector('#updateForm')
+        //const csrftoken = document
+          //  .querySelector('[name=csrfmiddlewaretoken]')
+            //.value;
+        //const input = document.querySelector('[name=content]')
+        updateForm.addEventListener('click', function (event) {
+            event.preventDefault()
+            const articleId = event.target.dataset.articleId
+            const commentId = event.target.dataset.commentId
+            const newForm = new FormData()
+            newForm.append('content', input.value)
+
+            axios({
+                method: 'post',
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                url: `/articles/${articleId}/comments/`,
+                data: newForm
+*/
+
+
+            })
+
+        })
+
     </script>
 
 {% endblock script %}
